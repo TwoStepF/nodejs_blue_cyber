@@ -1,7 +1,7 @@
 import {CRUD} from "../../common/interfaces/crud.interface";
-import e from "express";
+import cache from 'memory-cache'
 import {Status} from "../../common/StatusRes/status.dto";
-import * as Crypto from "crypto";
+import argon2 from 'argon2';
 import CryptoService from "../../common/services/crypto.service";
 import CryptoDao from "../Daos/crypto.dao";
 import util from "util";
@@ -36,8 +36,26 @@ class AuthService implements CRUD{
 
 
     async inputKey(key: any) {
+        let hash = await argon2.hash("password")
+        return await CryptoDao.crypto(hash)
+    }
 
-        return await CryptoDao.crypto(await CryptoService.encrypt(key, 2))
+    async checkKeyToDecode(key: string) {
+        try {
+            // const password = argon2.verify()
+            let dataEncrypted = await CryptoDao.getEncrypted()
+            const text = Buffer.from(dataEncrypted[0].crypto, "base64");
+            let decrypt = await CryptoService.decrypt(key, text)
+            if(decrypt === 'so cool'){
+                cache.put('key', key)
+                return new Status(200, 'success', '')
+            }
+            return new Status(400, 'false', '')
+        }catch (e){
+            console.log(e)
+            return new Status(400, 'false', '')
+        }
+
     }
 }
 

@@ -17,12 +17,12 @@ class CryptoDao {
         console.log('Created new instance of CryptoDao');
     }
 
-    async crypto(cryptoInput: string) {
+    async crypto(hashKey: string) {
         try {
             const Id = shortid.generate();
             const crypto = new this.Crypto({
                 _id: Id,
-                crypto: cryptoInput
+                crypto: hashKey
             });
             await crypto.save()
             return new Status(200, 'success', '')
@@ -30,6 +30,10 @@ class CryptoDao {
             console.log(err)
             return new Status(400, String(err),'')
         }
+    }
+
+    async getEncrypted() {
+        return await this.Crypto.find().exec();
     }
 }
 

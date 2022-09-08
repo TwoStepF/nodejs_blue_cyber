@@ -4,18 +4,23 @@ import {Status} from "../StatusRes/status.dto";
 const randomBytes = util.promisify(crypto.randomBytes);
 class CryptoService{
     encrypt = async (key: string, plaintext: any) => {
-        let Key = Buffer.from(key, 'base64')
-        const iv = await randomBytes(12);
-        const cipher = crypto.createCipheriv("chacha20-poly1305", Key, iv, {
-            authTagLength: 16,
-        });
-        const encrypted = Buffer.concat([
-            cipher.update(plaintext.toString(), "utf-8"),
-            cipher.final(),
-        ]);
-        const tag = cipher.getAuthTag();
-        const result = Buffer.concat([iv, tag, encrypted]);
-        return result.toString('base64');
+        try{
+            let Key = Buffer.from(key, 'base64')
+            const iv = await randomBytes(12);
+            const cipher = crypto.createCipheriv("chacha20-poly1305", Key, iv, {
+                authTagLength: 16,
+            });
+            const encrypted = Buffer.concat([
+                cipher.update(plaintext.toString(), "utf-8"),
+                cipher.final(),
+            ]);
+            const tag = cipher.getAuthTag();
+            const result = Buffer.concat([iv, tag, encrypted]);
+            return result.toString('base64');
+        }catch (e){
+            console.log(e)
+            throw (new Status(400, String(e), ''))
+        }
     };
 
     decrypt = async (key: any, encrypted: any) => {
@@ -35,10 +40,14 @@ class CryptoService{
             ]);
             return decrypted.toString("utf-8");
         }catch (e){
+            console.log(e)
             throw (new Status(400, String(e), ''))
         }
-
     };
+
+    DataToBuffer = (data: any) => {
+        return Buffer.from(String(data), "base64");
+    }
 }
 
 export default new CryptoService();

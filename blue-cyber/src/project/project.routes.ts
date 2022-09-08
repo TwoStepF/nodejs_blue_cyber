@@ -20,6 +20,8 @@ export class ProjectRoutes extends CommonRoutesConfig{
             .route(`/projects/:id`)
             .delete(
                 ProjectController.deleteProject
+            ).get(
+                ProjectController.getByProjectId
             );
         this.app
             .route('')

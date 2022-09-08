@@ -3,13 +3,15 @@ import {CreateProjectDto} from "../DTO/create.project.dto";
 import {Status} from "../../common/StatusRes/status.dto";
 import mongoose from "mongoose";
 import shortid from 'shortid';
+import CryptoService from "../../common/services/crypto.service";
+import cache from "memory-cache";
 
 class ProjectDao {
     Schema = MongooesServices.getMongoose().Schema;
 
     projectSchema = new this.Schema({
         _id: { type: String, required: true },
-        name: { type: String, maxLength: 2 },
+        name: { type: String, maxLength: 40 },
         scopes: { type: String, select: false },
         startDate: String,
         endDate: String,
@@ -57,6 +59,11 @@ class ProjectDao {
 
     async getAll() {
         return await this.Project.find().exec();
+    }
+
+    async getById(id: string) {
+        let project = await this.Project.find({_id:id});
+        return project;
     }
 }
 
